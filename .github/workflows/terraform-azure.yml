@@ -7,6 +7,7 @@ on:
 
 jobs:
   terraform:
+    name: 'Deploy Terraform to Azure'
     runs-on: ubuntu-latest
 
     env:
@@ -16,23 +17,29 @@ jobs:
       ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
     steps:
-      - name: Checkout code
+      # Step 1: Checkout repo code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Step 2: Setup Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.8.5
 
+      # Step 3: Initialize Terraform
       - name: Terraform Init
         run: terraform init
 
+      # Step 4: Validate Terraform code
       - name: Terraform Validate
         run: terraform validate
 
+      # Step 5: Generate Terraform Plan
       - name: Terraform Plan
         run: terraform plan -out=tfplan
 
+      # Step 6: Apply Terraform changes (deploy to Azure)
       - name: Terraform Apply (Deploy to Azure)
         if: github.ref == 'refs/heads/main'
         run: terraform apply -auto-approve tfplan
